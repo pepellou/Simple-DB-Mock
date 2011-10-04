@@ -125,6 +125,37 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function test_join(
+	) {
+		$this->mock->query("INSERT INTO tabla1(campo1, campo2, campo3) VALUES ('v1', 'v11', 2)");
+		$this->mock->query("INSERT INTO tabla1(campo1, campo2, campo3) VALUES ('v2', 'v22', 5)");
+		$this->mock->query("INSERT INTO tabla2(campo3, tabla1_id) VALUES ('v2', 1)");
+		$this->mock->query("INSERT INTO tabla2(campo3, tabla1_id) VALUES ('v3', 1)");
+		$this->assertEquals(
+			array(
+				array(
+					"tabla1.id" => 1,
+					"campo1" => "v1",
+					"campo2" => "v11",
+					"tabla1.campo3" => "2",
+					"tabla2.id" => 1,
+					"tabla2.campo3" => "v2",
+					"tabla1_id" => 1
+				),
+				array(
+					"tabla1.id" => 1,
+					"campo1" => "v1",
+					"campo2" => "v11",
+					"tabla1.campo3" => "2",
+					"tabla2.id" => 2,
+					"tabla2.campo3" => "v3",
+					"tabla1_id" => 1
+				)
+			),
+			$this->mock->query("SELECT * FROM tabla1, tabla2 WHERE tabla1_id=tabla1.id")
+		);
+	}
+
 }
 
 ?>

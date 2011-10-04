@@ -30,7 +30,7 @@ class DBMock {
 			: array();
 	}
 
-	public function getData(
+	private function getDataSingleTable(
 		$table
 	) {
 		$data = array();
@@ -44,15 +44,122 @@ class DBMock {
 		return $data;
 	}
 
+	private function getDataJoinTables(
+		$tables
+	) {
+		$datas = array();
+		foreach ($tables as $table) {
+			$datas[$table] = $this->getDataSingleTable($table);
+		}
+		return $this->mergeRows($datas);
+	}
+
+	private function mergeRowsTable(
+		$previous,
+		$news,
+		$table
+	) {
+		$results = array();
+		foreach ($previous as $rowPrevious) {
+			foreach ($news as $rowNext) {
+				$results []= array_merge($rowPrevious, $rowNext);
+			}
+		}
+		return $results;
+	}
+
+	private function findDuplicatedFields(
+		$datas
+	) {
+		$duplicated = array();
+		$fields = array();
+		foreach ($datas as $table => $rows) {
+			if (isset($rows[0])) {
+				foreach ($rows[0] as $field => $value) {
+					if (in_array($field, $fields))
+						if (!in_array($field, $duplicated))
+							$duplicated []= $field;
+					$fields []= $field;
+				}
+			}
+		}
+		return $duplicated;
+	}
+	
+	private function removeDuplicated(
+		$rows,
+		$duplicated,
+		$table
+	) {
+		$results = array();
+		foreach ($rows as $row) {
+			$newRow = array();
+			foreach ($row as $field => $value) {
+				if (in_array($field, $duplicated))
+					$field = "$table.$field";
+				$newRow[$field] = $value;
+			}
+			$results []= $newRow;
+		}
+		return $results;
+	}
+
+	private function removeDuplicatedFields(
+		$datas
+	) {
+		$results = array();
+		$duplicatedFields = $this->findDuplicatedFields($datas);
+		foreach ($datas as $table => $rows) {
+			$results[$table] = $this->removeDuplicated($rows, $duplicatedFields, $table);
+		}
+		return $results;
+	}
+
+	private function mergeRows(
+		$datas
+	) {
+		$results = array();
+		$datas = $this->removeDuplicatedFields($datas);
+		foreach ($datas as $table => $rows) {
+			if (count($results) == 0) {
+				$results = $rows;
+			} else {
+				$temp = $this->mergeRowsTable($results, $rows, $table);
+				$results = $temp;
+			}
+		}
+		return $results;
+	}
+
+	public function getData(
+		$table
+	) {
+		return (is_array($table))
+			? $this->getDataJoinTables($table)
+			: $this->getDataSingleTable($table);
+	}
+
+	private function initTable(
+		$table
+	) {
+		if (is_array($table)) {
+			foreach($table as $t) {
+				$this->initTable($t);
+			}
+		} else {
+			if (!isset($this->data[$table])) {
+				$this->data[$table] = array();
+				$this->autoinc[$table] = 1;
+			}
+		}
+	}
+
 	public function query(
 		$query
 	) {
 		$analysis = $this->analyze($query);
 		$table = $analysis->table();
-		if (!isset($this->data[$table])) {
-			$this->data[$table] = array();
-			$this->autoinc[$table] = 1;
-		}
+		$this->initTable($table);
 		switch ($analysis->type()) {
 			case "insert":
 				$this->data[$table][]= $this->newRow($analysis, $this->autoinc[$table]++);
@@ -105,6 +212,15 @@ class DBMock {
 		return $max;
 	}
 
+	private function isString(
+		$string
+	) {
+		$string = trim($string);
+		$first = substr($string, 0, 1);
+		$last = substr($string, strlen($string) - 1);
+		return (($first == $last) && in_array($first, array("\"", "'")));
+	}
+
 	private function evalRow(
 		$row,
 		$where
@@ -113,7 +229,19 @@ class DBMock {
 			case 'true':
 				return true;
 			case '=':
-				return ($row[$where[1]] == $where[2]) || ("'{$row[$where[1]]}'" == $where[2]);
+				$left = $where[1];
+				$right = $where[2];
+				$val1 = (is_numeric($left))
+					? $left
+					: ($this->isString($left))
+						? $this->trim($left)
+						: $row[$left];
+				$val2 = (is_numeric($right))
+					? $right
+					: ($this->isString($right))
+						? $this->trim($right)
+						: $row[$right];
+				return $val1 == $val2;
 			case 'AND':
 				return ($this->evalRow($where[1]) && $this->evalRow($where[2]));
 			case 'OR':
@@ -145,9 +273,7 @@ class DBMock {
 		$value
 	) {
 		$value = trim($value);
-		$first = substr($value, 0, 1);
-		$last = substr($value, strlen($value) - 1);
-		return (($first == $last) && in_array($first, array("\"", "'")))
+		return ($this->isString($value))
 			? $this->trim(substr($value, 1, strlen($value) - 2))
 			: $value;
 	}
