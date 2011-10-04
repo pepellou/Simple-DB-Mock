@@ -36,6 +36,8 @@ class DBMock {
 				}
 				if ($select == array('*'))
 					return $data;
+				else if ($select[0] == 'MAX')
+					return $this->getMax($data, $select[2]);
 				else if ($select == array('COUNT', '(', '*', ')'))
 					return count($data);
 				else {
@@ -43,6 +45,18 @@ class DBMock {
 				}
 		}
 		return null;
+	}
+
+	private function getMax(
+		$data,
+		$field
+	) {
+		$max = "";
+		foreach ($data as $row) {
+			if ($row[$field] > $max)
+				$max = $row[$field];
+		}
+		return $max;
 	}
 
 	private function evalRow(

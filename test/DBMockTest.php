@@ -66,6 +66,15 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function test_max(
+	) {
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 23)");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor3', 21)");
+		$this->assertEquals(2, $this->mock->query("SELECT MAX(id) FROM tabla"));
+		$this->assertEquals(23, $this->mock->query("SELECT MAX(campo2) FROM tabla"));
+		$this->assertEquals("'valor3'", $this->mock->query("SELECT MAX(campo1) FROM tabla"));
+	}
+
 }
 
 ?>
