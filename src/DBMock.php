@@ -213,6 +213,15 @@ class DBMock {
 				}
 				$this->data[$table] = $data;
 				return true;
+			case 'delete':
+				$data = array();
+				$where = $analysis->where_condition();
+				foreach ($this->getData($table) as $row) {
+					if (!$this->evalRow($row, $where))
+						$data []= $row;
+				}
+				$this->data[$table] = $data;
+				return true;
 		}
 		return null;
 	}
