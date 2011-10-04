@@ -75,6 +75,34 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("'valor3'", $this->mock->query("SELECT MAX(campo1) FROM tabla"));
 	}
 
+	public function test_values_with_quotes(
+	) {
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 23)");
+		$this->assertEquals(1, $this->mock->query("SELECT COUNT(*) FROM tabla WHERE campo2=23"));
+		$this->assertEquals(1, $this->mock->query("SELECT COUNT(*) FROM tabla WHERE campo2='23'"));
+	}
+
+	public function test_set_fields(
+	) {
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 23)");
+		$this->assertEquals(
+			array(
+				array("id" => 1, "campo1" => "'valor1'", "campo2" => "23")
+			),
+			$this->mock->query("SELECT * FROM tabla")
+		);
+		$this->mock->setFields(
+			"tabla",
+			array("campo3", "campo4")
+		);
+		$this->assertEquals(
+			array(
+				array("id" => 1, "campo1" => "'valor1'", "campo2" => "23", "campo3" => null, "campo4" => null)
+			),
+			$this->mock->query("SELECT * FROM tabla")
+		);
+	}
+
 }
 
 ?>
