@@ -258,9 +258,11 @@ class DBMock {
 		$row,
 		$name
 	) {
-		return (isset($row[$name]))
-			? $row[$name]
-			: $row[$this->getFieldName($name)];
+		if (isset($row[$name]))
+			return $row[$name];
+		if (isset($row[$this->getFieldName($name)]))
+			return $row[$this->getFieldName($name)];
+		return 0;
 	}
 
 	private function evalRow(
