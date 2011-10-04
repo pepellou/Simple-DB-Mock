@@ -103,6 +103,28 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function test_update(
+	) {
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 'valor2')");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 'valor2')");
+		$this->mock->query("UPDATE tabla SET campo1='valor3', campo2='valor4' WHERE id=2");
+		$this->assertEquals(
+			array(
+				array("id" => 1, "campo1" => "'valor1'", "campo2" =>"'valor2'"),
+				array("id" => 2, "campo1" => "'valor3'", "campo2" =>"'valor4'")
+			),
+			$this->mock->query("SELECT * FROM tabla")
+		);
+		$this->mock->query("UPDATE tabla SET campo1='VVV', campo2='VVV'");
+		$this->assertEquals(
+			array(
+				array("id" => 1, "campo1" => "'VVV'", "campo2" =>"'VVV'"),
+				array("id" => 2, "campo1" => "'VVV'", "campo2" =>"'VVV'")
+			),
+			$this->mock->query("SELECT * FROM tabla")
+		);
+	}
+
 }
 
 ?>

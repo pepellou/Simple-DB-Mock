@@ -75,6 +75,20 @@ class DBMock {
 				else {
 					print_r($select);
 				}
+				return null;
+			case 'update':
+				$data = array();
+				$where = $analysis->where_condition();
+				foreach ($this->getData($table) as $row) {
+					if ($this->evalRow($row, $where)) {
+						foreach($analysis->setters() as $field => $value) {
+							$row[$field] = $value;
+						}
+					}
+					$data []= $row;
+				}
+				$this->data[$table] = $data;
+				return true;
 		}
 		return null;
 	}

@@ -8,6 +8,7 @@ class QueryAnalyzer {
 	var $table;
 	var $selected_fields;
 	var $values;
+	var $setters;
 
 	public function __construct(
 		$query
@@ -18,6 +19,7 @@ class QueryAnalyzer {
 		$this->selected_fields = $this->getSelectedFields($this->type, $words);
 		$this->values = $this->getValues($this->type, $words);
 		$this->where_condition = $this->getWhere($words);
+		$this->setters = $this->getSetters($words);
 	}
 
 	public function getValues(
@@ -120,6 +122,24 @@ class QueryAnalyzer {
 			case "select":
 				return $words[$this->nextInWords("FROM", $words, 1) + 1];
 		}
+	}
+
+	private function getSetters(
+		$words
+	) {
+		$pos = $this->nextInWords("SET", $words, 1); 
+		$setters = array();
+		if ($pos !== null) {
+			$pos++;
+			while ($pos < count($words)) {
+				$field = $words[$pos++];
+				$pos++;
+				$value = $words[$pos++];
+				$pos++;
+				$setters[$field] = $value;
+			}
+		}
+		return $setters;
 	}
 
 	private function getWhere(
@@ -252,6 +272,11 @@ class QueryAnalyzer {
 	public function values(
 	) {
 		return $this->values;
+	}
+
+	public function setters(
+	) {
+		return $this->setters;
 	}
 
 }
