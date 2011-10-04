@@ -109,6 +109,19 @@ class QueryAnalyzer {
 		return $words;
 	}
 
+	private function getTableNames(
+		$words
+	) {
+		$pos = $this->nextInWords("FROM", $words, 1) + 1;
+		$names = array($words[$pos++]);
+		while ($pos < count($words) && $words[$pos++] == ',') {
+			$names []= $words[$pos++];
+		}		
+		return count($names) == 1
+			? $names[0]
+			: $names;
+	}
+
 	private function getTableName(
 		$type,
 		$words
@@ -120,7 +133,7 @@ class QueryAnalyzer {
 			case "update":
 				return $words[1];
 			case "select":
-				return $words[$this->nextInWords("FROM", $words, 1) + 1];
+				return $this->getTableNames($words);
 		}
 	}
 

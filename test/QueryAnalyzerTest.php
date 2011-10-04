@@ -150,6 +150,15 @@ class QueryAnalyzerTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function test_join(
+	) {
+		$query = new QueryAnalyzer("SELECT * FROM tabla1, tabla2");
+		$this->assertEquals(
+			array("tabla1", "tabla2"),
+			$query->table()
+		);
+	}
+
 }
 
 ?>
