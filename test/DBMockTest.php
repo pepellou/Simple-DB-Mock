@@ -20,7 +20,7 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 'valor2')");
 		$this->assertEquals(
 			array(
-				array("id" => 1, "campo1" => "valor1", "campo2" =>"valor2")
+				array("campo1" => "valor1", "campo2" =>"valor2")
 			),
 			$this->mock->query("SELECT * FROM tabla")
 		);
@@ -28,6 +28,7 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 
 	public function test_double_insert(
 	) {
+		$this->mock->addAutoInc("tabla");
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 'valor2')");
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 'valor2')");
 		$this->assertEquals(
@@ -50,6 +51,7 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 
 	public function test_select(
 	) {
+		$this->mock->addAutoInc("tabla");
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 'valor2')");
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor3', 'valor2')");
 		$this->assertEquals(
@@ -85,6 +87,7 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 
 	public function test_max(
 	) {
+		$this->mock->addAutoInc("tabla");
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 23)");
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor3', 21)");
 		$this->assertEquals(2, $this->mock->query("SELECT MAX(id) FROM tabla"));
@@ -104,7 +107,7 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 23)");
 		$this->assertEquals(
 			array(
-				array("id" => 1, "campo1" => "valor1", "campo2" => "23")
+				array("campo1" => "valor1", "campo2" => "23")
 			),
 			$this->mock->query("SELECT * FROM tabla")
 		);
@@ -114,7 +117,7 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		);
 		$this->assertEquals(
 			array(
-				array("id" => 1, "campo1" => "valor1", "campo2" => "23", "campo3" => null, "campo4" => null)
+				array("campo1" => "valor1", "campo2" => "23", "campo3" => null, "campo4" => null)
 			),
 			$this->mock->query("SELECT * FROM tabla")
 		);
@@ -122,6 +125,7 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 
 	public function test_update(
 	) {
+		$this->mock->addAutoInc("tabla");
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 'valor2')");
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 'valor2')");
 		$this->mock->query("UPDATE tabla SET campo1='valor3', campo2='valor4' WHERE id=2");
@@ -143,7 +147,9 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function test_join(
-	) {
+	) { 
+		$this->mock->addAutoInc("tabla1");
+		$this->mock->addAutoInc("tabla2");
 		$this->mock->query("INSERT INTO tabla1(campo1, campo2, campo3) VALUES ('v1', 'v11', 2)");
 		$this->mock->query("INSERT INTO tabla1(campo1, campo2, campo3) VALUES ('v2', 'v22', 5)");
 		$this->mock->query("INSERT INTO tabla2(campo3, tabla1_id) VALUES ('v2', 1)");

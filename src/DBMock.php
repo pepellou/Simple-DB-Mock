@@ -7,12 +7,20 @@ class DBMock {
 	var $data;
 	var $autoinc;
 	var $additionalFields;
+	var $autoIncTables;
 
 	public function __construct(
 	) {
 		$this->data = array();
 		$this->autoinc = array();
 		$this->additionalFields = array();
+		$this->autoIncTables = array();
+	}
+
+	public function addAutoInc(
+		$table
+	) {
+		$this->autoIncTables []= $table;
 	}
 
 	public function setFields(
@@ -153,6 +161,14 @@ class DBMock {
 			}
 		}
 	}
+	
+	private function getAutoInc(
+		$table
+	) {
+		return (in_array($table, $this->autoIncTables))
+			? $this->autoinc[$table]++
+			: null;
+	}
 
 	public function query(
 		$query
@@ -162,7 +178,7 @@ class DBMock {
 		$this->initTable($table);
 		switch ($analysis->type()) {
 			case "insert":
-				$this->data[$table][]= $this->newRow($analysis, $this->autoinc[$table]++);
+				$this->data[$table][]= $this->newRow($analysis, $this->getAutoInc($table));
 				return true;
 			case "select":
 				$select = $analysis->selected_fields();
@@ -258,11 +274,13 @@ class DBMock {
 
 	private function newRow(
 		$analyzer,
-		$id
+		$id = null
 	) {
 		$fields = $analyzer->selected_fields();
 		$values = $analyzer->values();
-		$row = array("id" => $id);
+		$row = array();
+		if ($id != null)
+			$row["id"] = $id;
 		for ($pos = 0; $pos < count($fields); $pos++) {
 			$row[$fields[$pos]] = $this->trim($values[$pos]);
 		}
