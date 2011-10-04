@@ -237,6 +237,22 @@ class DBMock {
 		return (($first == $last) && in_array($first, array("\"", "'")));
 	}
 
+	private function getFieldName(
+		$name
+	) {
+		$words = split("\.", $name);
+		return $words[count($words) - 1];
+	}
+
+	private function evalFieldName(
+		$row,
+		$name
+	) {
+		return (isset($row[$name]))
+			? $row[$name]
+			: $row[$this->getFieldName($name)];
+	}
+
 	private function evalRow(
 		$row,
 		$where
@@ -251,12 +267,12 @@ class DBMock {
 					? $left
 					: ($this->isString($left))
 						? $this->trim($left)
-						: $row[$left];
+						: $this->evalFieldName($row, $left);
 				$val2 = (is_numeric($right))
 					? $right
 					: ($this->isString($right))
 						? $this->trim($right)
-						: $row[$right];
+						: $this->evalFieldName($row, $right);
 				return $val1 == $val2;
 			case 'AND':
 				return ($this->evalRow($row, $where[1]) && $this->evalRow($row, $where[2]));
