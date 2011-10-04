@@ -196,7 +196,8 @@ class DBMock {
 				else if ($select == array('COUNT', '(', '*', ')'))
 					return count($data);
 				else {
-					print_r($select);
+					// TODO: process selections
+					return $data;
 				}
 				return null;
 			case 'update':
