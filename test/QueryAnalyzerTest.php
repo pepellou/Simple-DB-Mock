@@ -93,6 +93,51 @@ class QueryAnalyzerTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function test_where(
+	) {
+		$select = new QueryAnalyzer("SELECT * FROM tabla");
+		$this->assertEquals(
+			array(true),
+			$select->where_condition()
+		);
+		$select = new QueryAnalyzer("SELECT * FROM tabla WHERE campo='valor'");
+		$this->assertEquals(
+			array("=", "campo", "'valor'"),
+			$select->where_condition()
+		);
+		$select = new QueryAnalyzer("SELECT * FROM tabla WHERE campo='valor' AND campo2='valor'");
+		$this->assertEquals(
+			array(
+				"AND", 
+				array("=", "campo", "'valor'"), 
+				array("=", "campo2", "'valor'")
+			),
+			$select->where_condition()
+		);
+		$select = new QueryAnalyzer("SELECT * FROM tabla WHERE (campo='valor' AND campo2='valor')");
+		$this->assertEquals(
+			array(
+				"AND", 
+				array("=", "campo", "'valor'"), 
+				array("=", "campo2", "'valor'")
+			),
+			$select->where_condition()
+		);
+		$select = new QueryAnalyzer("SELECT * FROM tabla WHERE (campo='valor' AND campo2='valor') OR campo3='valor'");
+		$this->assertEquals(
+			array(
+				"OR", 
+				array(
+					"AND", 
+					array("=", "campo", "'valor'"),
+					array("=", "campo2", "'valor'")
+				), 
+				array("=", "campo3", "'valor'")
+			),
+			$select->where_condition()
+		);
+	}
+
 }
 
 ?>

@@ -1,5 +1,7 @@
 <?php
 
+include_once('src/ArrayList.php');
+
 class QueryAnalyzer {
 	
 	var $type;
@@ -15,6 +17,7 @@ class QueryAnalyzer {
 		$this->table = $this->getTableName($this->type, $words);
 		$this->selected_fields = $this->getSelectedFields($this->type, $words);
 		$this->values = $this->getValues($this->type, $words);
+		$this->where_condition = $this->getWhere($words);
 	}
 
 	public function getValues(
@@ -69,10 +72,20 @@ class QueryAnalyzer {
 		return $list;
 	}
 
+	private function operators(
+	) {
+		return array("OR", "AND", "=");
+	}
+
+	private function separators(
+	) {
+		return array(" ", ",", "(", ")", "=");
+	}
+
 	public function split(
 		$query
 	) {
-		$separators = array(" ", ",", "(", ")");
+		$separators = $this->separators();
 		$words = array();
 		$in_word = false;
 		$prev = 0;
@@ -109,15 +122,100 @@ class QueryAnalyzer {
 		}
 	}
 
+	private function getWhere(
+		$words
+	) {
+		$pos = $this->nextInWords("WHERE", $words, 1); 
+		if ($pos === null)
+			return array('true');
+		$postfija = array();
+		$pos++;
+		$stack = array();
+		while ($pos < count($words)) {
+			$word = $words[$pos];
+			if (in_array($word, $this->operators())) {
+				$end = false;
+				while (count($stack) > 0 && ($stack[count($stack) - 1] != "(") && !$end) {
+					$top = $stack[count($stack) - 1];
+					if (in_array($top, $this->operators())) {
+						if ($this->priority($top) >= $this->priority($word)) {
+							$last = $stack[count($stack) - 1];
+							$postfija []= $last;
+							$stack = $this->removeLast($stack);
+						} else {
+							$end = true;
+						}
+					} else {
+						$last = $stack[count($stack) - 1];
+						$postfija []= $last;
+						$stack = $this->removeLast($stack);
+					}
+				}
+				$stack []= $word;
+			} else if ($word == '(') {
+				$stack []= $word;
+			} else if ($word == ')') {
+				while (count($stack) > 0 && ($stack[count($stack) - 1] != "(")) {
+					$last = $stack[count($stack) - 1];
+					$postfija []= $last;
+					$stack = $this->removeLast($stack);
+				}
+				if ($stack[count($stack) - 1] == "(")
+					$stack = $this->removeLast($stack);
+			} else {
+				$postfija []= $word;
+			}
+			$pos++;
+		}
+		while (count($stack) > 0) {
+			$last = $stack[count($stack) - 1];
+			$postfija []= $last;
+			$stack = $this->removeLast($stack);
+		}
+		$tree = $this->buildTree(new ArrayList($postfija));
+		return $tree;
+	}
+
+	private function buildTree(
+		$post
+	) {
+		$last = $post->removeLast();
+		if (in_array($last, $this->operators())) {
+			$right = $this->buildTree($post);
+			$left = $this->buildTree($post);
+			return array($last, $left, $right);
+		} else {
+			return $last;
+		}		
+	}
+
+	private function priority(
+		$operator
+	) {
+		return array_search($operator, $this->operators());
+	}
+
+	private function removeLast(
+		$stack
+	) {
+		// TODO extract to class Stack
+		return array_slice($stack, 0, -1);
+	}
+
+	public function where_condition(
+	) {
+		return $this->where_condition;
+	}
+
 	private function nextInWords(
 		$word,
 		$words,
 		$init = 0
 	) {
 		$pos = $init;
-		while (strtoupper($words[$pos]) != $word)
+		while ($pos < count($words) && strtoupper($words[$pos]) != $word)
 			$pos++;
-		return $pos;
+		return ($pos == count($words)) ? null : $pos;
 	}
 
 	private function getType(
