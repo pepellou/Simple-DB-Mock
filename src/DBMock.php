@@ -82,7 +82,7 @@ class DBMock {
 				foreach ($this->getData($table) as $row) {
 					if ($this->evalRow($row, $where)) {
 						foreach($analysis->setters() as $field => $value) {
-							$row[$field] = $value;
+							$row[$field] = $this->trim($value);
 						}
 					}
 					$data []= $row;
@@ -136,9 +136,20 @@ class DBMock {
 		$values = $analyzer->values();
 		$row = array("id" => $id);
 		for ($pos = 0; $pos < count($fields); $pos++) {
-			$row[$fields[$pos]] = $values[$pos];
+			$row[$fields[$pos]] = $this->trim($values[$pos]);
 		}
 		return $row;
+	}
+
+	private function trim(
+		$value
+	) {
+		$value = trim($value);
+		$first = substr($value, 0, 1);
+		$last = substr($value, strlen($value) - 1);
+		return (($first == $last) && in_array($first, array("\"", "'")))
+			? $this->trim(substr($value, 1, strlen($value) - 2))
+			: $value;
 	}
 
 }
