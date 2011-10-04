@@ -243,9 +243,9 @@ class DBMock {
 						: $row[$right];
 				return $val1 == $val2;
 			case 'AND':
-				return ($this->evalRow($where[1]) && $this->evalRow($where[2]));
+				return ($this->evalRow($row, $where[1]) && $this->evalRow($row, $where[2]));
 			case 'OR':
-				return ($this->evalRow($where[1]) || $this->evalRow($where[2]));
+				return ($this->evalRow($row, $where[1]) || $this->evalRow($row, $where[2]));
 		}
 		return false;
 	}
