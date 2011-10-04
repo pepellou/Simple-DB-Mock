@@ -1,6 +1,6 @@
 <?php
 
-include_once 'DBMock.php';
+include_once 'src/DBMock.php';
 
 class DBMockTest extends PHPUnit_Framework_TestCase {
 	

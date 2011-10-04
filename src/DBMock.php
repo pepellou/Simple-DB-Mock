@@ -1,6 +1,6 @@
 <?php
 
-include_once 'QueryAnalyzer.php';
+include_once 'src/QueryAnalyzer.php';
 
 class DBMock {
 	
