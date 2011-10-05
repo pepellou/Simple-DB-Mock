@@ -100,8 +100,9 @@ class QueryAnalyzer {
 		for ($current = 0; $current < strlen($query); $current++) {
 			$c = substr($query, $current, 1);
 			if (!$in_string && $this->isSeparator($c)) {
-				if ($in_word)
+				if ($in_word) {
 					$words []= substr($query, $prev, $current - $prev);
+				}
 				$in_word = false;
 				$prev = $current + 1;
 				if ($c != " ")
@@ -121,7 +122,47 @@ class QueryAnalyzer {
 		}
 		if ($in_word)
 			$words []= substr($query, $prev);
-		return $words;
+		return $this->slashes($words);
+	}
+
+	private function slashes(
+		$words
+	) {
+		$slashed = array();
+		foreach ($words as $word) {
+			$slashed []= $this->slash($word);
+		}
+		return $slashed;
+	}
+
+	private function slash(
+		$word
+	) {
+		if (in_array(strtoupper($word), array(
+			"=", ",", "'", "(", ")", "UPDATE", "INSERT",
+			"SELECT", "VALUES", "INTO", "FROM", "WHERE",
+			"DELETE", "ORDER", "BY", "\""
+		)))
+			return $word;
+		$result = "";
+		$scaped = false;
+		for ($pos = 0; $pos < strlen($word); $pos++) {
+			$c = substr($word, $pos, 1);
+			if ($c == "\\" && !$scaped) {
+				$scaped = true;
+			} else {
+				if ($scaped) {
+					if (in_array(ord($c), array(34, 39, 92)))
+						$result = $result.$c;
+					else
+						$result = $result.chr($c);
+				} else {
+					$result = $result.$c;
+				}
+				$scaped = false;
+			}
+		}
+		return $result;
 	}
 
 	private function getTableNames(

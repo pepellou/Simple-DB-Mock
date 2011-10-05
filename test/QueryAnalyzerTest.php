@@ -198,7 +198,7 @@ class QueryAnalyzerTest extends PHPUnit_Framework_TestCase {
 	) {
 		$query = new QueryAnalyzer("INSERT INTO tabla(campo, campo2) VALUES ('val\'or', 'valor2')");
 		$this->assertEquals(
-			array("'val\'or'", "'valor2'"),
+			array("'val'or'", "'valor2'"),
 			$query->values()
 		);
 		$query = new QueryAnalyzer("INSERT INTO tabla(campo, campo2) VALUES ('val,or', 'valor2')");
