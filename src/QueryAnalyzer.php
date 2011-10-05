@@ -84,7 +84,9 @@ class QueryAnalyzer {
 	private function isSeparator(
 		$word
 	) {
-		return in_array($word, array(" ", ",", "(", ")", "="));
+		return in_array($word, array(
+			" ", ",", "(", ")", "="
+		));
 	}
 
 	public function split(
@@ -93,13 +95,13 @@ class QueryAnalyzer {
 		$words = array();
 		$in_word = false;
 		$prev = 0;
-		for ($pos = 0; $pos < strlen($query); $pos++) {
-			$c = substr($query, $pos, 1);
+		for ($current = 0; $current < strlen($query); $current++) {
+			$c = substr($query, $current, 1);
 			if ($this->isSeparator($c)) {
 				if ($in_word)
-					$words []= substr($query, $prev, $pos - $prev);
+					$words []= substr($query, $prev, $current - $prev);
 				$in_word = false;
-				$prev = $pos + 1;
+				$prev = $current + 1;
 				if ($c != " ")
 					$words []= $c;
 			} else {
