@@ -162,6 +162,13 @@ class DBMock {
 		}
 	}
 	
+	private function resetAutoInc(
+		$table
+	) {
+		if (in_array($table, $this->autoIncTables))
+			$this->autoinc[$table] = 1;
+	}
+
 	private function getAutoInc(
 		$table
 	) {
@@ -219,6 +226,10 @@ class DBMock {
 		$table = $analysis->table();
 		$this->initTable($table);
 		switch ($analysis->type()) {
+			case "truncate":
+				$this->data[$table]= array();
+				$this->resetAutoInc($table);
+				return true;
 			case "insert":
 				$this->data[$table][]= $this->newRow($analysis, $this->getAutoInc($table));
 				return true;

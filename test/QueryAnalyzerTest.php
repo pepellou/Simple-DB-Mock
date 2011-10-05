@@ -208,6 +208,13 @@ class QueryAnalyzerTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function test_truncate(
+	) {
+		$query = new QueryAnalyzer("TRUNCATE tabla");
+		$this->assertEquals("truncate", $query->type());
+		$this->assertEquals("tabla", $query->table());
+	}
+
 }
 
 ?>

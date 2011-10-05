@@ -278,11 +278,11 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 	) {
 		$this->mock->addAutoInc("tabla");
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES (1, 'va\'l\"or')");
-		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES (3, \"va,'lor\")");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES (3, \"va,'lór\")");
 		$this->assertEquals(
 			array(
 				array("id" => 1, "campo1" => "1", "campo2" =>"va'l\"or"),
-				array("id" => 2, "campo1" => "3", "campo2" =>"va,'lor")
+				array("id" => 2, "campo1" => "3", "campo2" =>"va,'lór")
 			),
 			$this->mock->query("SELECT * FROM tabla")
 		);
@@ -298,6 +298,22 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(2, $this->mock->query("SELECT COUNT(*) FROM tabla"));
 		$data = $this->mock->query("SELECT * FROM tabla WHERE campo1=1");
 		$this->assertEquals($original_content, $data[0]["campo2"]);
+	}
+
+	public function test_truncate(
+	) {
+		$this->mock->addAutoInc("tabla");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 'valor2')");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 'valor2')");
+		$this->mock->query("TRUNCATE tabla");
+		$this->assertEquals(0, $this->mock->query("SELECT COUNT(*) FROM tabla"));
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor', 'valor')");
+		$this->assertEquals(
+			array(
+				array("id" => 1, "campo1" => "valor", "campo2" =>"valor")
+			),
+			$this->mock->query("SELECT * FROM tabla")
+		);
 	}
 
 }

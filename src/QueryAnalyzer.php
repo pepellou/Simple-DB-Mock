@@ -188,6 +188,7 @@ class QueryAnalyzer {
 			case "delete":
 				return $words[2];
 			case "update":
+			case "truncate":
 				return $words[1];
 			case "select":
 				return $this->getTableNames($words);
@@ -343,6 +344,8 @@ class QueryAnalyzer {
 				return "update";
 			case "DELETE":
 				return "delete";
+			case "TRUNCATE":
+				return "truncate";
 		}
 		return null;
 	}
