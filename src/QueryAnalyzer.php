@@ -94,10 +94,11 @@ class QueryAnalyzer {
 	) {
 		$words = array();
 		$in_word = false;
+		$in_string = false;
 		$prev = 0;
 		for ($current = 0; $current < strlen($query); $current++) {
 			$c = substr($query, $current, 1);
-			if ($this->isSeparator($c)) {
+			if (!$in_string && $this->isSeparator($c)) {
 				if ($in_word)
 					$words []= substr($query, $prev, $current - $prev);
 				$in_word = false;
