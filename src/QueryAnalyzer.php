@@ -95,6 +95,7 @@ class QueryAnalyzer {
 		$words = array();
 		$in_word = false;
 		$in_string = false;
+		$str_open = "'";
 		$prev = 0;
 		for ($current = 0; $current < strlen($query); $current++) {
 			$c = substr($query, $current, 1);
@@ -107,6 +108,15 @@ class QueryAnalyzer {
 					$words []= $c;
 			} else {
 				$in_word = true;
+				if (in_array($c, array("'", "\""))) {
+					if ($in_string) {
+						if (($c == $str_open) && (substr($query, $current - 1, 1) != "\\"))
+							$in_string = false;
+					} else {
+						$in_string = true;
+						$str_open = $c;
+					}
+				}
 			}
 		}
 		if ($in_word)
