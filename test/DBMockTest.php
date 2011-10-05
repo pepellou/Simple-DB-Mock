@@ -295,6 +295,8 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES (1, '$content')");
 		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('$content', \"va,'lor\")");
 		$this->assertEquals(2, $this->mock->query("SELECT COUNT(*) FROM tabla"));
+		$data = $this->mock->query("SELECT * FROM tabla WHERE campo1=1");
+		$this->assertEquals($content, $data[0]["campo2"]);
 	}
 
 }
