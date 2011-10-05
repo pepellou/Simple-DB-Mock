@@ -274,6 +274,29 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function test_special_chars(
+	) {
+		$this->mock->addAutoInc("tabla");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES (1, 'va\'lor')");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES (3, \"va,'lor\")");
+		$this->assertEquals(
+			array(
+				array("id" => 1, "campo1" => "1", "campo2" =>"va\'lor"),
+				array("id" => 2, "campo1" => "3", "campo2" =>"va,'lor")
+			),
+			$this->mock->query("SELECT * FROM tabla")
+		);
+	}
+
+	public function test_blob(
+	) {
+		$this->mock->addAutoInc("tabla");
+		$content = addslashes(file_get_contents("test/data/check.png"));
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES (1, '$content')");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('$content', \"va,'lor\")");
+		$this->assertEquals(2, $this->mock->query("SELECT COUNT(*) FROM tabla"));
+	}
+
 }
 
 ?>
