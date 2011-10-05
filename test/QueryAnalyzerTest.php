@@ -159,6 +159,32 @@ class QueryAnalyzerTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function test_order(
+	) {
+		$query = new QueryAnalyzer("SELECT * FROM tabla1, tabla2 ORDER BY campo1 ASC, campo2, campo3 DESC");
+		$this->assertEquals(
+			array(
+				array("campo1", "ASC"),
+				array("campo2", "ASC"),
+				array("campo3", "DESC")
+			),
+			$query->order()
+		);
+		$query = new QueryAnalyzer("SELECT * FROM tabla1, tabla2 WHERE campo1=2 ORDER BY campo1 ASC, campo2, campo3 DESC");
+		$this->assertEquals(
+			array("=", "campo1", "2"),
+			$query->where_condition()
+		);
+		$this->assertEquals(
+			array(
+				array("campo1", "ASC"),
+				array("campo2", "ASC"),
+				array("campo3", "DESC")
+			),
+			$query->order()
+		);
+	}
+
 }
 
 ?>

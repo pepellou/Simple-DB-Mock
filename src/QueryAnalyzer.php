@@ -9,6 +9,7 @@ class QueryAnalyzer {
 	var $selected_fields;
 	var $values;
 	var $setters;
+	var $order;
 
 	public function __construct(
 		$query
@@ -20,6 +21,7 @@ class QueryAnalyzer {
 		$this->values = $this->getValues($this->type, $words);
 		$this->where_condition = $this->getWhere($words);
 		$this->setters = $this->getSetters($words);
+		$this->order = $this->getOrder($words);
 	}
 
 	public function getValues(
@@ -137,6 +139,29 @@ class QueryAnalyzer {
 		}
 	}
 
+	private function getOrder(
+		$words
+	) {
+		$pos = $this->nextInWords("ORDER", $words, 1); 
+		$order = array();
+		if ($pos !== null) {
+			$pos++;
+			if ($words[$pos] == "BY") {
+				$pos++;
+				while ($pos < count($words)) {
+					$field = $words[$pos++];
+					$ord = "ASC";
+					if ($words[$pos] != ",") {
+						$ord = $words[$pos++];
+					}
+					$pos++;
+					$order[] = array($field, $ord);
+				}
+			}
+		}
+		return $order;
+	}
+
 	private function getSetters(
 		$words
 	) {
@@ -164,7 +189,7 @@ class QueryAnalyzer {
 		$postfija = array();
 		$pos++;
 		$stack = array();
-		while ($pos < count($words)) {
+		while (($pos < count($words)) && ($words[$pos] != "ORDER")) {
 			$word = $words[$pos];
 			if (in_array($word, $this->operators())) {
 				$end = false;
@@ -290,6 +315,11 @@ class QueryAnalyzer {
 	public function setters(
 	) {
 		return $this->setters;
+	}
+
+	public function order(
+	) {
+		return $this->order;
 	}
 
 }
