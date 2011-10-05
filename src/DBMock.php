@@ -170,6 +170,48 @@ class DBMock {
 			: null;
 	}
 
+	private function compRows(
+		$row1,
+		$row2,
+		$order
+	) {
+		$ord = 0;
+		while ($ord < count($order)) {
+			$field = $order[$ord][0];
+			$method = $order[$ord][1];
+			$val1 = $row1[$field];
+			$val2 = $row2[$field];
+			if ($val1 != $val2) {
+				if ($val1 < $val2) {
+					return ($method == "ASC") ? 1 : -1;
+				}
+				return ($method == "ASC") ? -1 : 1;
+			}
+			$ord++;
+		}
+		return 0;
+	}
+
+	private function order(
+		$data,
+		$order
+	) {
+		$results = array();
+		foreach ($data as $row) {
+			$pos = 0;
+			while (($pos < count($results)) 
+				&& ($this->compRows($results[$pos], $row, $order) >= 0))
+				$pos++;
+			$move = count($results);
+			while ($move > $pos) {
+				$results[$move] = $results[$move - 1];
+				$move--;
+			}
+			$results [$pos]= $row;
+		}
+		return $results;
+	}
+
 	public function query(
 		$query
 	) {
@@ -189,6 +231,7 @@ class DBMock {
 						$data []= $row;
 					}
 				}
+				$data = $this->order($data, $analysis->order());
 				if ($select == array('*'))
 					return $data;
 				else if ($select[0] == 'MAX')

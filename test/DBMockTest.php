@@ -220,6 +220,60 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(1, $this->mock->query("SELECT COUNT(*) FROM tabla"));
 	}
 
+	public function test_order(
+	) {
+		$this->mock->addAutoInc("tabla");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES (1, 'valor2')");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES (3, 'valor4')");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES (2, 'valor1')");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES (2, 'valor0')");
+		$this->assertEquals(
+			array(
+				array("id" => 1, "campo1" => "1", "campo2" =>"valor2"),
+				array("id" => 2, "campo1" => "3", "campo2" =>"valor4"),
+				array("id" => 3, "campo1" => "2", "campo2" =>"valor1"),
+				array("id" => 4, "campo1" => "2", "campo2" =>"valor0")
+			),
+			$this->mock->query("SELECT * FROM tabla")
+		);
+		$this->assertEquals(
+			array(
+				array("id" => 1, "campo1" => "1", "campo2" =>"valor2"),
+				array("id" => 3, "campo1" => "2", "campo2" =>"valor1"),
+				array("id" => 4, "campo1" => "2", "campo2" =>"valor0"),
+				array("id" => 2, "campo1" => "3", "campo2" =>"valor4")
+			),
+			$this->mock->query("SELECT * FROM tabla ORDER BY campo1")
+		);
+		$this->assertEquals(
+			array(
+				array("id" => 2, "campo1" => "3", "campo2" =>"valor4"),
+				array("id" => 3, "campo1" => "2", "campo2" =>"valor1"),
+				array("id" => 4, "campo1" => "2", "campo2" =>"valor0"),
+				array("id" => 1, "campo1" => "1", "campo2" =>"valor2")
+			),
+			$this->mock->query("SELECT * FROM tabla ORDER BY campo1 DESC")
+		);
+		$this->assertEquals(
+			array(
+				array("id" => 2, "campo1" => "3", "campo2" =>"valor4"),
+				array("id" => 4, "campo1" => "2", "campo2" =>"valor0"),
+				array("id" => 3, "campo1" => "2", "campo2" =>"valor1"),
+				array("id" => 1, "campo1" => "1", "campo2" =>"valor2")
+			),
+			$this->mock->query("SELECT * FROM tabla ORDER BY campo1 DESC, campo2 ASC")
+		);
+		$this->assertEquals(
+			array(
+				array("id" => 1, "campo1" => "1", "campo2" =>"valor2"),
+				array("id" => 4, "campo1" => "2", "campo2" =>"valor0"),
+				array("id" => 3, "campo1" => "2", "campo2" =>"valor1"),
+				array("id" => 2, "campo1" => "3", "campo2" =>"valor4")
+			),
+			$this->mock->query("SELECT * FROM tabla ORDER BY campo1, campo2")
+		);
+	}
+
 }
 
 ?>

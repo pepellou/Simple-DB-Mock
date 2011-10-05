@@ -151,7 +151,7 @@ class QueryAnalyzer {
 				while ($pos < count($words)) {
 					$field = $words[$pos++];
 					$ord = "ASC";
-					if ($words[$pos] != ",") {
+					if (($pos < count($words)) && ($words[$pos] != ",")) {
 						$ord = $words[$pos++];
 					}
 					$pos++;
