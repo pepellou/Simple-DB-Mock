@@ -81,21 +81,21 @@ class QueryAnalyzer {
 		return array("OR", "AND", "=");
 	}
 
-	private function separators(
+	private function isSeparator(
+		$word
 	) {
-		return array(" ", ",", "(", ")", "=");
+		return in_array($word, array(" ", ",", "(", ")", "="));
 	}
 
 	public function split(
 		$query
 	) {
-		$separators = $this->separators();
 		$words = array();
 		$in_word = false;
 		$prev = 0;
 		for ($pos = 0; $pos < strlen($query); $pos++) {
 			$c = substr($query, $pos, 1);
-			if (in_array($c, $separators)) {
+			if ($this->isSeparator($c)) {
 				if ($in_word)
 					$words []= substr($query, $prev, $pos - $prev);
 				$in_word = false;
