@@ -339,6 +339,19 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function test_zero_values(
+	) {
+		$this->mock->addAutoInc("tabla");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES (1, 'valor2')");
+		$this->mock->query("UPDATE tabla SET campo1=0 WHERE campo1=1");
+		$this->assertEquals(
+			array(
+				array("id" => 1, "campo1" => "0", "campo2" =>"valor2")
+			),
+			$this->mock->query("SELECT * FROM tabla")
+		);
+	}
+
 }
 
 ?>

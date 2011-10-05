@@ -238,7 +238,7 @@ class QueryAnalyzer {
 		$setters = array();
 		if ($pos !== null) {
 			$pos++;
-			while ($pos < count($words)) {
+			while (($pos < count($words)) && ($words[$pos] != "WHERE") && ($words[$pos-1] != "WHERE")) {
 				$field = $words[$pos++];
 				$pos++;
 				$value = $words[$pos++];

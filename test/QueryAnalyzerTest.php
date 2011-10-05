@@ -150,6 +150,18 @@ class QueryAnalyzerTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function test_setters_where(
+	) {
+		$analyzer = new QueryAnalyzer("UPDATE tabla SET campo='valor', campo2=23 WHERE campo=1");
+		$this->assertEquals(
+			array(
+				"campo" => "'valor'",
+				"campo2" => 23
+			),
+			$analyzer->setters()
+		);
+	}
+
 	public function test_join(
 	) {
 		$query = new QueryAnalyzer("SELECT * FROM tabla1, tabla2");
