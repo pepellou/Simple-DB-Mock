@@ -138,6 +138,7 @@ class QueryAnalyzer {
 	private function slash(
 		$word
 	) {
+		// TODO: this is really slow with big BLOBs (an issue?)
 		if (in_array(strtoupper($word), array(
 			"=", ",", "'", "(", ")", "UPDATE", "INSERT",
 			"SELECT", "VALUES", "INTO", "FROM", "WHERE",
