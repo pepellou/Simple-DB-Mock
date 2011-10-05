@@ -326,6 +326,7 @@ class DBMock {
 		switch ($where[0]) {
 			case 'true':
 				return true;
+			case '!=':
 			case '=':
 				$left = $where[1];
 				$right = $where[2];
@@ -339,7 +340,10 @@ class DBMock {
 					: ($this->isString($right))
 						? $this->trim($right)
 						: $this->evalFieldName($row, $right);
-				return $val1 == $val2;
+				$equality = ($val1 == $val2);
+				if ($where[0] == "=")
+					return $equality;
+				return !$equality;
 			case 'AND':
 				return ($this->evalRow($row, $where[1]) && $this->evalRow($row, $where[2]));
 			case 'OR':

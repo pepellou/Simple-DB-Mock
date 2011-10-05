@@ -316,6 +316,29 @@ class DBMockTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function test_distinct_operator(
+	) {
+		$this->mock->addAutoInc("tabla");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor1', 'valor2')");
+		$this->mock->query("INSERT INTO tabla(campo1, campo2) VALUES ('valor3', 'valor2')");
+		$this->assertEquals(
+			array(
+				array("id" => 2, "campo1" => "valor3", "campo2" =>"valor2")
+			),
+			$this->mock->query("SELECT * FROM tabla WHERE campo1!='valor1'")
+		);
+		$this->assertEquals(
+			array(
+				array("id" => 2, "campo1" => "valor3", "campo2" =>"valor2")
+			),
+			$this->mock->query("SELECT * FROM tabla WHERE campo1!='valor1' AND campo2='valor2'")
+		);
+		$this->assertEquals(
+			array(),
+			$this->mock->query("SELECT * FROM tabla WHERE campo2!='valor2'")
+		);
+	}
+
 }
 
 ?>

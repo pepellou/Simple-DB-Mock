@@ -78,14 +78,14 @@ class QueryAnalyzer {
 
 	private function operators(
 	) {
-		return array("OR", "AND", "=");
+		return array("OR", "AND", "=", "!=");
 	}
 
 	private function isSeparator(
 		$word
 	) {
 		return in_array($word, array(
-			" ", ",", "(", ")", "="
+			" ", ",", "(", ")", "=", "!"
 		));
 	}
 
@@ -122,6 +122,19 @@ class QueryAnalyzer {
 		}
 		if ($in_word)
 			$words []= substr($query, $prev);
+		// TODO support for multichar operators...
+		$joined = array();
+		$prev = "";
+		foreach ($words as $word) {
+			if ($word != "!") {
+				if ($prev == "!" && $word == "=")
+					$joined []= "!=";
+				else
+					$joined []= $word;
+			}
+			$prev = $word;
+		}
+		$words = $joined;
 		return $this->slashes($words);
 	}
 

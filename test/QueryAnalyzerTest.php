@@ -215,6 +215,19 @@ class QueryAnalyzerTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("tabla", $query->table());
 	}
 
+	public function test_distinct_operator(
+	) {
+		$select = new QueryAnalyzer("SELECT * FROM tabla WHERE campo='valor' AND campo2!='valor'");
+		$this->assertEquals(
+			array(
+				"AND", 
+				array("=", "campo", "'valor'"), 
+				array("!=", "campo2", "'valor'")
+			),
+			$select->where_condition()
+		);
+	}
+
 }
 
 ?>
