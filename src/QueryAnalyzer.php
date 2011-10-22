@@ -1,6 +1,6 @@
 <?php
 
-include_once('src/ArrayList.php');
+include_once('src/util/ArrayList.php');
 
 class QueryAnalyzer {
 	
