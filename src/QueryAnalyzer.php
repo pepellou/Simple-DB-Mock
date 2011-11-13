@@ -4,12 +4,12 @@ include_once('src/util/ArrayList.php');
 
 class QueryAnalyzer {
 	
-	var $type;
-	var $table;
-	var $selected_fields;
-	var $values;
-	var $setters;
-	var $order;
+	private $type;
+	private $table;
+	private $selected_fields;
+	private $values;
+	private $setters;
+	private $order;
 
 	public function __construct(
 		$query

@@ -2,7 +2,7 @@
 
 class ArrayList {
 
-	var $data;
+	private $data;
 
 	public function __construct(
 		$values

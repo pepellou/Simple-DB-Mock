@@ -4,10 +4,10 @@ include_once 'src/QueryAnalyzer.php';
 
 class DBMock {
 	
-	var $data;
-	var $autoinc;
-	var $additionalFields;
-	var $autoIncTables;
+	private $data;
+	private $autoinc;
+	private $additionalFields;
+	private $autoIncTables;
 
 	public function __construct(
 	) {
