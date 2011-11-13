@@ -394,5 +394,3 @@ class QueryAnalyzer {
 	}
 
 }
-
-?>
